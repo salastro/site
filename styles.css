@@ -1,0 +1,49 @@
+body {
+  background-color: black;
+  color: #00ff00;
+  font-family: monospace;
+  font-size: 1.25em;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+input {
+  font-family: monospace;
+  font-size: 1em;
+}
+
+#terminal {
+  width: 80%;
+  max-width: 800px;
+  height: 70%;
+  border: 1px solid #00ff00;
+  padding: 10px;
+  /* overflow: auto; */
+  /* display: flex; */
+  /* flex-direction: column; */
+}
+
+#output {
+  flex: 1;
+  overflow-y: auto;
+}
+
+#input-line {
+  display: flex;
+}
+
+#prompt {
+  margin-right: 5px;
+}
+
+#user-input {
+  background: black;
+  color: #00ff00;
+  border: none;
+  flex: 1;
+  outline: none;
+}
