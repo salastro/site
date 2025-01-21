@@ -12,7 +12,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Command handlers
   const commandHandlers = {
-    help: () => addLine('Available commands: help, clear, echo [text]'),
+    help: () => {
+      // TODO: implement help for each command.
+      const commands = Object.keys(commandHandlers).join(', ');
+      addLine(`Available commands: ${commands}`);
+    },
     clear: () => { output.innerHTML = ''; },
     echo: (args) => addLine(args.join(' ')),
   };
