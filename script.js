@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ls: () => {
       // List the contents of the current directory
       if (fs[cwd]) {
-        addLine(fs[cwd].join(' '));
+        addLine(fs[cwd].children.join(' '));
       } else {
         addLine('ls: No such file or directory');
       }
