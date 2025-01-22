@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     parent = fileObj.path.slice(0, fileObj.path.lastIndexOf("/"));
     if (parent == "")
       parent = "/";
-    dirName = fileObj.path.slice(fileObj.path.lastIndexOf("/"));
+    dirName = fileObj.path.slice(fileObj.path.lastIndexOf("/") + 1);
     fs[fileObj.path] = fileObj;
     fs[parent].children.push(dirName);
   }
