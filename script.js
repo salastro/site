@@ -10,17 +10,27 @@ document.addEventListener("DOMContentLoaded", () => {
     output.scrollTop = output.scrollHeight;
   }
 
+  function FileSysObj(isdir, modified, path, children){
+    this.isdir = isdir;
+    this.modified = modified; 
+    this.path = path;
+    this.children = children;
+  }
+  
   // File system simulation
-  let fs = {
-    "/": ["home", "bin", "etc"],
-    "/home/": ["user"],
-    "/home/user/": ["documents", "pictures", "notes.txt"],
-    "/home/user/notes.txt": "This is a text file with some notes.",
-    "/home/user/documents/": [],
-    "/home/user/pictures/": [],
-    "/bin/": ["bash", "ls", "echo"],
-    "/etc/": ["hosts", "passwd"],
-  };
+  let fs = {};
+
+  function addFile(fileObj){
+    parent = fileObj.path.slice(0, fileObj.path.lastIndexOf("/")) + "/";
+    dirName = fileObj.path.slice(fileObj.path.lastIndexOf("/"));
+    fs[fileObj.path] = fileObj;
+    fs[parent].children.push(dirName);
+  }
+  
+  addFile(new FileSysObj(true, new Date(), "/", []));
+  
+  file = new FileSysObj(false, new Date(), "/test", []);
+  addFile(file);
 
   let cwd = "/"; // The initial directory is the root
 
