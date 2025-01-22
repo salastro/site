@@ -21,13 +21,15 @@ document.addEventListener("DOMContentLoaded", () => {
   let fs = {};
 
   function addFile(fileObj){
-    parent = fileObj.path.slice(0, fileObj.path.lastIndexOf("/")) + "/";
+    parent = fileObj.path.slice(0, fileObj.path.lastIndexOf("/"));
+    if (parent == "")
+      parent = "/";
     dirName = fileObj.path.slice(fileObj.path.lastIndexOf("/"));
     fs[fileObj.path] = fileObj;
     fs[parent].children.push(dirName);
   }
   
-  addFile(new FileSysObj(true, new Date(), "/", []));
+  fs["/"] = new FileSysObj(true, new Date(), "/", []);
   
   file = new FileSysObj(false, new Date(), "/test", []);
   addFile(file);
