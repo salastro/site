@@ -12,15 +12,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // File system simulation
   let fs = {
-    "/": ["home", "bin", "etc"],
-    "/home/": ["user"],
-    "/home/user/": ["documents", "pictures", "notes.txt"],
+    "/": ["home/", "bin/", "etc/", "txt"],
+    "/txt" : " ",
+    "/home/": ["user/"],
+    "/home/user/": ["documents/", "pictures/", "notes.txt"],
     "/home/user/notes.txt": "This is a text file with some notes.",
     "/home/user/documents/": [],
     "/home/user/pictures/": [],
     "/bin/": ["bash", "ls", "echo"],
     "/etc/": ["hosts", "passwd"],
   };
+
+  console.log(fs);
 
   let cwd = "/"; // The initial directory is the root
 
@@ -43,8 +46,22 @@ document.addEventListener("DOMContentLoaded", () => {
     date: () => addLine(new Date().toLocaleString()),
 
     // File system commands
-    ls: () => {
+    ls: (args) => {
       // List the contents of the current directory
+      if (args.length > 1) {
+        addLine('ls: too many arguments');
+        return;
+      } else if (args.length === 1) {
+        const target = args[0];
+        if (fs[`${cwd}${target}/`]) {
+          addLine(fs[`${cwd}${target}/`].join(' '));
+        } else if (fs[`${cwd}${target}`]) {
+          addLine(target);
+        } else {
+          addLine(`ls: No such file or directory: ${target}`);
+        }
+        return;
+      }
       if (fs[cwd]) {
         addLine(fs[cwd].join(' '));
       } else {
@@ -57,22 +74,46 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     cd: (args) => {
       // Change the current directory
-      if (args.lenght > 1) {
+      if (args.length > 1) {
         addLine('cd: too many arguments');
         return;
       } else if (args.length === 0) {
         cwd = '/';
         return;
       }
-      const dir = args[0];
+      // Remove trailing slash
+      const dir = args[0].endsWith('/') ? args[0].slice(0, -1) : args[0];
       if (dir === '..') {
-        // Go to the parent directory (simplified)
+        // Go to the parent directory
         cwd = cwd.split('/').slice(0, -2).join('/') + '/';
       } else if (fs[`${cwd}${dir}/`]) {
         cwd = `${cwd}${dir}/`;
+      } else if (dir.startsWith('/') && fs[`${dir}/`]) {
+        cwd = `${dir}/`;
       } else {
         addLine(`cd: No such directory: ${dir}`);
       }
+    },
+    mkdir: (args) => {
+      // Create a new directory
+      if (args.length === 0) {
+        addLine('mkdir: missing operand');
+        return;
+      }
+      const dir = args[0];
+      fs[`${cwd}${dir}/`] = []; // Create a new directory
+      fs[cwd].push(dir); // Add the new directory to the current directory
+    },
+
+    touch: (args) => {
+      // Create a new file
+      if (args.length === 0) {
+        addLine('touch: missing file operand');
+        return;
+      }
+      const file = args[0];
+      fs[`${cwd}${file}`] = " "; // Create a new directory
+      fs[cwd].push(file); // Add the new directory to the current directory
     },
 
     // File commands
@@ -84,10 +125,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const filePath = args[0].startsWith("/") ? args[0] : `${cwd}${args[0]}`;
       
-      if (fs[filePath] && typeof fs[filePath] === "string") {
-        addLine(fs[filePath]);
-      } else if (fs[filePath]) {
-        addLine(`cat: ${args[0]}: Is a directory`);
+      if (fs[filePath]) {
+        if (typeof fs[filePath] === "string") {
+          addLine(fs[filePath]);
+        } else {
+          addLine(`cat: ${args[0]}: Is a directory`);
+        }
       } else {
         addLine(`cat: ${args[0]}: No such file or directory`);
       }
