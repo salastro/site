@@ -31,8 +31,11 @@ document.addEventListener("DOMContentLoaded", () => {
   
   fs["/"] = new FileSysObj(true, new Date(), "/", []);
   
-  file = new FileSysObj(false, new Date(), "/test", []);
-  addFile(file);
+  addFile(new FileSysObj(false, new Date(), "/home", []));
+  addFile(new FileSysObj(false, new Date(), "/dev", []));
+  addFile(new FileSysObj(false, new Date(), "/usr", []));
+  addFile(new FileSysObj(false, new Date(), "/home/salastro", []));
+  console.log(fs);
 
   let cwd = "/"; // The initial directory is the root
 
