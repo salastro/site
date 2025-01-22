@@ -22,7 +22,7 @@ input {
   height: 70%;
   border: 1px solid #00ff00;
   padding: 10px;
-  /* overflow: auto; */
+  overflow: auto;
   /* display: flex; */
   /* flex-direction: column; */
 }
