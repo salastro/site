@@ -84,7 +84,13 @@ document.addEventListener("DOMContentLoaded", () => {
         cwd = '/';
         return;
       }
+
+      //check if the path is of the form: /path/to/dir/
+      if (args[0][args[0].length - 1] == '/'){
+        args[0] = args[0].slice(0, -1);
+      }
       const dir = args[0];
+      
       if (dir === '..') {
         // Go to the parent directory (simplified)
         cwd = cwd.split('/').slice(0, -2).join('/') + '/';
