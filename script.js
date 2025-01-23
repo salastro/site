@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // File system simulation
   let fs = {
     "/": ["home/", "bin/", "etc/", "txt"],
-    "/txt" : " ",
+    "/txt" : null,
     "/home/": ["user/"],
     "/home/user/": ["documents/", "pictures/", "notes.txt"],
     "/home/user/notes.txt": "This is a text file with some notes.",
@@ -53,9 +53,9 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       } else if (args.length === 1) {
         const target = args[0];
-        if (fs[`${cwd}${target}/`]) {
+        if (`${cwd}${target}/` in fs) {
           addLine(fs[`${cwd}${target}/`].join(' '));
-        } else if (fs[`${cwd}${target}`]) {
+        } else if (`${cwd}${target}` in fs) {
           addLine(target);
         } else {
           addLine(`ls: No such file or directory: ${target}`);
@@ -86,14 +86,15 @@ document.addEventListener("DOMContentLoaded", () => {
       if (dir === '..') {
         // Go to the parent directory
         cwd = cwd.split('/').slice(0, -2).join('/') + '/';
-      } else if (fs[`${cwd}${dir}/`]) {
+      } else if (`${cwd}${dir}/` in fs) {
         cwd = `${cwd}${dir}/`;
-      } else if (dir.startsWith('/') && fs[`${dir}/`]) {
+      } else if (dir.startsWith('/') && `${dir}/` in fs) {
         cwd = `${dir}/`;
       } else {
         addLine(`cd: No such directory: ${dir}`);
       }
     },
+
     mkdir: (args) => {
       // Create a new directory
       if (args.length === 0) {
@@ -112,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       const file = args[0];
-      fs[`${cwd}${file}`] = " "; // Create a new directory
+      fs[`${cwd}${file}`] = null; // Create a new directory
       fs[cwd].push(file); // Add the new directory to the current directory
     },
 
@@ -125,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const filePath = args[0].startsWith("/") ? args[0] : `${cwd}${args[0]}`;
       
-      if (fs[filePath]) {
+      if (filePath in fs) {
         if (typeof fs[filePath] === "string") {
           addLine(fs[filePath]);
         } else {
