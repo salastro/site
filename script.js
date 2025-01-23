@@ -21,21 +21,21 @@ document.addEventListener("DOMContentLoaded", () => {
   let fs = {};
 
   function addFile(fileObj){
-    parent = fileObj.path.slice(0, fileObj.path.lastIndexOf("/"));
+    parent = fileObj.path.slice(0, fileObj.path.slice(0, -2).lastIndexOf("/") + 1);
     if (parent == "")
       parent = "/";
-    dirName = fileObj.path.slice(fileObj.path.lastIndexOf("/") + 1);
+    dirName = fileObj.path.slice(fileObj.path.slice(0, -2).lastIndexOf("/") + 1);
     fs[fileObj.path] = fileObj;
     fs[parent].children.push(dirName);
   }
   
   fs["/"] = new FileSysObj(true, new Date(), "/", []);
   
-  addFile(new FileSysObj(false, new Date(), "/home", []));
-  addFile(new FileSysObj(false, new Date(), "/dev", []));
-  addFile(new FileSysObj(false, new Date(), "/usr", []));
-  addFile(new FileSysObj(false, new Date(), "/home/salastro", []));
-  console.log(fs);
+  addFile(new FileSysObj(true, new Date(), "/home/", []));
+  addFile(new FileSysObj(true, new Date(), "/dev/", []));
+  addFile(new FileSysObj(true, new Date(), "/usr/", []));
+  addFile(new FileSysObj(true, new Date(), "/home/salastro/", []));
+  addFile(new FileSysObj(false, new Date(), "/home/salastro/file.txt", []));
 
   let cwd = "/"; // The initial directory is the root
 
