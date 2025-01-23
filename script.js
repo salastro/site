@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const userInput = document.getElementById("user-input");
 
   // Add a new line to the output
+  //TODO: handle special characters
   function addLine(text) {
     const line = document.createElement("div");
     line.textContent = text;
@@ -10,11 +11,12 @@ document.addEventListener("DOMContentLoaded", () => {
     output.scrollTop = output.scrollHeight;
   }
 
-  function FileSysObj(isdir, modified, path, children){
+  function FileSysObj(isdir, modified, path, children, data){
     this.isdir = isdir;
     this.modified = modified; 
     this.path = path;
     this.children = children;
+    this.data = data;
   }
   
   // File system simulation
@@ -29,14 +31,17 @@ document.addEventListener("DOMContentLoaded", () => {
     fs[parent].children.push(dirName);
   }
   
-  fs["/"] = new FileSysObj(true, new Date(), "/", []);
+  fs["/"] = new FileSysObj(true, new Date(), "/", [], null);
   
-  addFile(new FileSysObj(true, new Date(), "/home/", []));
-  addFile(new FileSysObj(true, new Date(), "/dev/", []));
-  addFile(new FileSysObj(true, new Date(), "/usr/", []));
-  addFile(new FileSysObj(true, new Date(), "/home/salastro/", []));
-  addFile(new FileSysObj(false, new Date(), "/home/salastro/file.txt", []));
+  addFile(new FileSysObj(false, new Date(), "/test", [], "some data\nhow?") );
+  addFile(new FileSysObj(true, new Date(), "/home/", [], null));
+  addFile(new FileSysObj(true, new Date(), "/dev/", [], null));
+  addFile(new FileSysObj(true, new Date(), "/usr/", [], null));
+  addFile(new FileSysObj(true, new Date(), "/home/salastro/", [], null));
+  addFile(new FileSysObj(false, new Date(), "/home/salastro/file.txt", [], "hello there!\n"));
 
+  console.log(fs);
+  
   let cwd = "/"; // The initial directory is the root
 
   // Command handlers
@@ -98,9 +103,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const filePath = args[0].startsWith("/") ? args[0] : `${cwd}${args[0]}`;
+      console.log(filePath);
       
-      if (fs[filePath] && typeof fs[filePath] === "string") {
-        addLine(fs[filePath]);
+      if (!fs[filePath].isdir){
+        addLine(fs[filePath].data);
+        console.log(fs[filePath].data);
       } else if (fs[filePath]) {
         addLine(`cat: ${args[0]}: Is a directory`);
       } else {
