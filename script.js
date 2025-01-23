@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // File system simulation
   let fs = {
     "/": ["home/", "bin/", "etc/", "txt"],
-    "/txt" : null,
+    "/txt" : "",
     "/home/": ["user/"],
     "/home/user/": ["documents/", "pictures/", "notes.txt"],
     "/home/user/notes.txt": "This is a text file with some notes.",
@@ -22,8 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
     "/bin/": ["bash", "ls", "echo"],
     "/etc/": ["hosts", "passwd"],
   };
-
-  console.log(fs);
 
   let cwd = "/"; // The initial directory is the root
 
