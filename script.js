@@ -89,15 +89,17 @@ document.addEventListener("DOMContentLoaded", () => {
       if (args[0][args[0].length - 1] == '/'){
         args[0] = args[0].slice(0, -1);
       }
-      const dir = args[0];
-      
-      if (dir === '..') {
-        // Go to the parent directory (simplified)
-        cwd = cwd.split('/').slice(0, -2).join('/') + '/';
-      } else if (fs[`${cwd}${dir}/`]) {
-        cwd = `${cwd}${dir}/`;
-      } else {
-        addLine(`cd: No such directory: ${dir}`);
+      const elements = args[0].split('/');
+
+      for (let i = 0, dir = elements[0]; i < elements.length; i++, dir = elements[i]){
+        if (dir === '..') {
+          // Go to the parent directory (simplified)
+          cwd = cwd.split('/').slice(0, -2).join('/') + '/';
+        } else if (fs[`${cwd}${dir}/`]) {
+          cwd = `${cwd}${dir}/`;
+        } else {
+          addLine(`cd: No such directory: ${dir}`);
+        }
       }
     },
 
