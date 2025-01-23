@@ -113,8 +113,32 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       const file = args[0];
-      fs[`${cwd}${file}`] = null; // Create a new directory
-      fs[cwd].push(file); // Add the new directory to the current directory
+      fs[`${cwd}${file}`] = ""; // Create a new file
+      fs[cwd].push(file); // Add the new file to the current directory
+    },
+
+    rm: (args) => {
+      // Remove a file or directory
+      if (args.length === 0) {
+        addLine('rm: missing operand');
+        return;
+      }
+      for (let target of args) {
+        // Format the target path
+        // target = target.startsWith('/') ? target : `${cwd}${target}`;
+        // target = target.endsWith('/') ? target.slice(0, -1) : target;
+
+        if (`${cwd}${target}/` in fs) {
+          delete fs[`${cwd}${target}/`]; // Remove the directory
+          fs[cwd] = fs[cwd].filter((item) => item !== `${target}/`); // Remove the directory from the current directory
+        } else if (`${cwd}${target}` in fs) {
+          delete fs[`${cwd}${target}`]; // Remove the file
+          fs[cwd] = fs[cwd].filter((item) => item !== target);
+        } else {
+          addLine(`rm: No such file or directory: ${target}`);
+        }
+      }
+      console.log(fs);
     },
 
     // File commands
