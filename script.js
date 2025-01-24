@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let cwd = "/"; // The initial directory is the root
 
   // Command handlers
+  // TODO: Handle empty commands
   const commandHandlers = {
     // General commands
     help: () => {
@@ -160,6 +161,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     },
 
+    "": () => {
+      // Do nothing
+    },
   };
 
   function handleCommand(command) {
