@@ -69,12 +69,28 @@ document.addEventListener("DOMContentLoaded", () => {
     date: () => addLine(new Date().toLocaleString()),
 
     // File system commands
-    ls: () => {
+    ls: (args) => {
       // List the contents of the current directory
-      if (fs[cwd]) {
-        addLine(fs[cwd].children.join(" "));
-      } else {
-        addLine("ls: No such file or directory");
+      if (args.length === 0) {
+        if (cwd in fs) {
+          addLine(fs[cwd].children.join(" "));
+        } else {
+          addLine("ls: No such file or directory");
+        }
+        return;
+      }
+
+      // List the contents of all directories in the arguments
+      for (const arg of args) {
+        const fullPath = arg.startsWith('/') ? arg : `${cwd}${arg}`;
+        const dir = fullPath.endsWith('/') ? fullPath : `${fullPath}/`;
+        if (dir in fs) {
+          addLine(fs[dir].children.join(" "));
+        } else if (fullPath in fs) {
+          addLine(arg);
+        } else {
+          addLine(`ls: cannot access '${arg}': No such file or directory`);
+        }
       }
     },
 
