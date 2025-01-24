@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const userInput = document.getElementById("user-input");
 
   // Add a new line to the output
+  //TODO: handle special characters
   function addLine(text) {
     const line = document.createElement("div");
     line.textContent = text;
@@ -11,18 +12,42 @@ document.addEventListener("DOMContentLoaded", () => {
     terminal.scrollTop = terminal.scrollHeight;
   }
 
+  function FileSysObj(isdir, modified, path, children, data) {
+    this.isdir = isdir;
+    this.modified = modified;
+    this.path = path;
+    this.children = children;
+    this.data = data;
+  }
+
   // File system simulation
-  let fs = {
-    "/": ["home/", "bin/", "etc/", "txt"],
-    "/txt" : "",
-    "/home/": ["user/"],
-    "/home/user/": ["documents/", "pictures/", "notes.txt"],
-    "/home/user/notes.txt": "This is a text file with some notes.",
-    "/home/user/documents/": [],
-    "/home/user/pictures/": [],
-    "/bin/": ["bash", "ls", "echo"],
-    "/etc/": ["hosts", "passwd"],
-  };
+  let fs = {};
+
+  function addFile(fileObj) {
+    parent = fileObj.path.slice(
+      0,
+      fileObj.path.slice(0, -2).lastIndexOf("/") + 1,
+    );
+    if (parent == "") {
+      parent = "/";
+    }
+    dirName = fileObj.path.slice(
+      fileObj.path.slice(0, -2).lastIndexOf("/") + 1,
+    );
+    fs[fileObj.path] = fileObj;
+    fs[parent].children.push(dirName);
+  }
+
+  fs["/"] = new FileSysObj(true, new Date(), "/", [], null);
+
+  addFile(new FileSysObj(false, new Date(), "/test", [], "some data\nhow?"));
+  addFile(new FileSysObj(true, new Date(), "/home/", [], null));
+  addFile(new FileSysObj(true, new Date(), "/dev/", [], null));
+  addFile(new FileSysObj(true, new Date(), "/usr/", [], null));
+  addFile(new FileSysObj(true, new Date(), "/home/salastro/", [], null));
+  addFile(new FileSysObj(false, new Date(), "/home/salastro/file.txt", [], "hello there!\n",),);
+
+  console.log(fs);
 
   let cwd = "/"; // The initial directory is the root
 
@@ -48,53 +73,64 @@ document.addEventListener("DOMContentLoaded", () => {
     // File system commands
     ls: (args) => {
       // List the contents of the current directory
-      if (args.length > 1) {
-        addLine('ls: too many arguments');
-        return;
-      } else if (args.length === 1) {
-        const target = args[0];
-        if (`${cwd}${target}/` in fs) {
-          addLine(fs[`${cwd}${target}/`].join(' '));
-        } else if (`${cwd}${target}` in fs) {
-          addLine(target);
+      if (args.length === 0) {
+        if (cwd in fs) {
+          addLine(fs[cwd].children.join(" "));
         } else {
-          addLine(`ls: No such file or directory: ${target}`);
+          addLine("ls: No such file or directory");
         }
         return;
       }
-      if (fs[cwd]) {
-        addLine(fs[cwd].join(' '));
-      } else {
-        addLine('ls: No such file or directory');
+
+      // List the contents of all directories in the arguments
+      for (const arg of args) {
+        const fullPath = arg.startsWith('/') ? arg : `${cwd}${arg}`;
+        const dir = fullPath.endsWith('/') ? fullPath : `${fullPath}/`;
+        if (dir in fs) {
+          addLine(fs[dir].children.join(" "));
+        } else if (fullPath in fs) {
+          addLine(arg);
+        } else {
+          addLine(`ls: cannot access '${arg}': No such file or directory`);
+        }
       }
     },
+
     pwd: () => {
       // Print the current working directory
       addLine(cwd);
     },
+
     cd: (args) => {
       // Change the current directory
       if (args.length > 1) {
         addLine('cd: too many arguments');
         return;
       } else if (args.length === 0) {
-        cwd = '/';
+        // Go to the root directory
+        cwd = "/";
         return;
       }
-      // Remove trailing slash
-      const dir = args[0].endsWith('/') ? args[0].slice(0, -1) : args[0];
-      if (dir === '..') {
+
+      // Add a trailing slash if it's not there
+      const target = args[0].endsWith('/') ? args[0] : `${args[0]}/`;
+      // Check if the target is an absolute path or relative to the current directory
+      const dir = target.startsWith('/') ? target : `${cwd}${target}`;
+
+      if (target === "../") {
         // Go to the parent directory
-        cwd = cwd.split('/').slice(0, -2).join('/') + '/';
-      } else if (`${cwd}${dir}/` in fs) {
-        cwd = `${cwd}${dir}/`;
-      } else if (dir.startsWith('/') && `${dir}/` in fs) {
-        cwd = `${dir}/`;
+        cwd = cwd.split("/").slice(0, -2).join("/") + "/";
+      } else if (target === "./") {
+        // Do nothing
+        // cwd = cwd;
+      } else if (dir in fs) {
+        cwd = dir;
       } else {
-        addLine(`cd: No such directory: ${dir}`);
+        addLine(`cd: No such directory: ${args[0]}`);
       }
     },
 
+    // TODO: reimplement mkdir, touch, and rm for the new filesystem model
     mkdir: (args) => {
       // Create a new directory
       if (args.length === 0) {
@@ -142,6 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
     },
 
     // File commands
+    // TODO: cat handle multiple commands
     cat: (args) => {
       if (args.length === 0) {
         addLine("cat: missing file operand");
@@ -149,13 +186,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const filePath = args[0].startsWith("/") ? args[0] : `${cwd}${args[0]}`;
-      
-      if (filePath in fs) {
-        if (typeof fs[filePath] === "string") {
-          addLine(fs[filePath]);
-        } else {
-          addLine(`cat: ${args[0]}: Is a directory`);
-        }
+      console.log(filePath);
+
+      if (!fs[filePath].isdir) {
+        addLine(fs[filePath].data);
+        console.log(fs[filePath].data);
+      } else if (fs[filePath]) {
+        addLine(`cat: ${args[0]}: Is a directory`);
       } else {
         addLine(`cat: ${args[0]}: No such file or directory`);
       }
