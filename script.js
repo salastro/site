@@ -89,29 +89,26 @@ document.addEventListener("DOMContentLoaded", () => {
         addLine("cd: too many arguments");
         return;
       } else if (args.length === 0) {
+        // Go to the root directory
         cwd = "/";
         return;
       }
 
-      //check if the path is of the form: /path/to/dir/
-      if (args[0][args[0].length - 1] == "/") {
-        args[0] = args[0].slice(0, -1);
-      }
-      const elements = args[0].split("/");
+      // Add a trailing slash if it's not there
+      const target = args[0].endsWith('/') ? args[0] : `${args[0]}/`;
+      // Check if the target is an absolute path or relative to the current directory
+      const dir = target.startsWith('/') ? target : `${cwd}${target}`;
 
-      for (
-        let i = 0, dir = elements[0];
-        i < elements.length;
-        i++, dir = elements[i]
-      ) {
-        if (dir === "..") {
-          // Go to the parent directory (simplified)
-          cwd = cwd.split("/").slice(0, -2).join("/") + "/";
-        } else if (fs[`${cwd}${dir}/`]) {
-          cwd = `${cwd}${dir}/`;
-        } else {
-          addLine(`cd: No such directory: ${dir}`);
-        }
+      if (target === "../") {
+        // Go to the parent directory
+        cwd = cwd.split("/").slice(0, -2).join("/") + "/";
+      } else if (target === "./") {
+        // Do nothing
+        // cwd = cwd;
+      } else if (dir in fs) {
+        cwd = dir;
+      } else {
+        addLine(`cd: No such directory: ${args[0]}`);
       }
     },
 
