@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const output = document.getElementById("output");
+  const terminal = document.getElementById("terminal");
   const userInput = document.getElementById("user-input");
 
   // Add a new line to the output
@@ -8,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const line = document.createElement("div");
     line.textContent = text;
     output.appendChild(line);
-    output.scrollTop = output.scrollHeight;
+    terminal.scrollTop = terminal.scrollHeight;
   }
 
   function FileSysObj(isdir, modified, path, children, data) {
@@ -51,6 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let cwd = "/"; // The initial directory is the root
 
   // Command handlers
+  // TODO: Handle empty commands
   const commandHandlers = {
     // General commands
     help: () => {
@@ -101,8 +103,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     cd: (args) => {
       // Change the current directory
-      if (args.lenght > 1) {
-        addLine("cd: too many arguments");
+      if (args.length > 1) {
+        addLine('cd: too many arguments');
         return;
       } else if (args.length === 0) {
         // Go to the root directory
@@ -128,7 +130,55 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     },
 
+    // TODO: reimplement mkdir, touch, and rm for the new filesystem model
+    mkdir: (args) => {
+      // Create a new directory
+      if (args.length === 0) {
+        addLine('mkdir: missing operand');
+        return;
+      }
+      const dir = args[0];
+      fs[`${cwd}${dir}/`] = []; // Create a new directory
+      fs[cwd].push(dir); // Add the new directory to the current directory
+    },
+
+    touch: (args) => {
+      // Create a new file
+      if (args.length === 0) {
+        addLine('touch: missing file operand');
+        return;
+      }
+      const file = args[0];
+      fs[`${cwd}${file}`] = ""; // Create a new file
+      fs[cwd].push(file); // Add the new file to the current directory
+    },
+
+    rm: (args) => {
+      // Remove a file or directory
+      if (args.length === 0) {
+        addLine('rm: missing operand');
+        return;
+      }
+      for (let target of args) {
+        // Format the target path
+        // target = target.startsWith('/') ? target : `${cwd}${target}`;
+        // target = target.endsWith('/') ? target.slice(0, -1) : target;
+
+        if (`${cwd}${target}/` in fs) {
+          delete fs[`${cwd}${target}/`]; // Remove the directory
+          fs[cwd] = fs[cwd].filter((item) => item !== `${target}/`); // Remove the directory from the current directory
+        } else if (`${cwd}${target}` in fs) {
+          delete fs[`${cwd}${target}`]; // Remove the file
+          fs[cwd] = fs[cwd].filter((item) => item !== target);
+        } else {
+          addLine(`rm: No such file or directory: ${target}`);
+        }
+      }
+      console.log(fs);
+    },
+
     // File commands
+    // TODO: cat handle multiple commands
     cat: (args) => {
       if (args.length === 0) {
         addLine("cat: missing file operand");
@@ -146,6 +196,10 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         addLine(`cat: ${args[0]}: No such file or directory`);
       }
+    },
+
+    "": () => {
+      // Do nothing
     },
   };
 
