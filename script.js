@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const output = document.getElementById("output");
+  const terminal = document.getElementById("terminal");
   const userInput = document.getElementById("user-input");
 
   // Add a new line to the output
@@ -7,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const line = document.createElement("div");
     line.textContent = text;
     output.appendChild(line);
-    output.scrollTop = output.scrollHeight;
+    terminal.scrollTop = terminal.scrollHeight;
   }
 
   // File system simulation
