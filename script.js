@@ -5,10 +5,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // Add a new line to the output
   //TODO: handle special characters
   function addLine(text) {
-    const line = document.createElement("div");
-    line.textContent = text;
-    output.appendChild(line);
-    output.scrollTop = output.scrollHeight;
+    lines = text.split('\n');
+    for (let i = 0; i < lines.length; i++){
+      const line = document.createElement("div");
+      line.textContent = lines[i];
+      output.appendChild(line);
+      output.scrollTop = output.scrollHeight;
+    }
   }
 
   function FileSysObj(isdir, modified, path, children, data){
@@ -33,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   fs["/"] = new FileSysObj(true, new Date(), "/", [], null);
   
-  addFile(new FileSysObj(false, new Date(), "/test", [], "some data\nhow?") );
+  addFile(new FileSysObj(false, new Date(), "/test", [], "some data\nhow \t are \t you \t?") );
   addFile(new FileSysObj(true, new Date(), "/home/", [], null));
   addFile(new FileSysObj(true, new Date(), "/dev/", [], null));
   addFile(new FileSysObj(true, new Date(), "/usr/", [], null));
