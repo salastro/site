@@ -218,28 +218,40 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function tabComplete(input) {
+    const [cmd, ...args] = input.split(" ");
+    if (args.length === 0) {
+      const matches = Object.keys(commandHandlers).filter((c) => c.startsWith(cmd));
+      if (matches.length === 1) {
+        return matches[0] + " ";
+      }
+    } else if (args.length === 1) {
+      const path = args[0];
+      const dirPath = path.startsWith("/") ? path : `${cwd}${path}`;
+      const dir = dirPath.endsWith("/") ? dirPath : `${dirPath}/`;
+      const matches = fs[cwd]?.children.filter((child) => child.startsWith(path));
+      if (matches?.length === 1) {
+        return `${cmd} ${matches[0]} `;
+      }
+    }
+    return input;
+  }
+
   userInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       const command = userInput.value.trim();
       addLine(`$ ${command}`);
       handleCommand(command);
       userInput.value = "";
+    } else if (e.key === "Tab") {
+      e.preventDefault();
+      userInput.value = tabComplete(userInput.value);
     }
   });
 
-  addLine('Greetings, human! Type "help" to see the available commands.');
-});
-
-// Force focus on input field
-document.addEventListener("click", () => {
-  const userInput = document.getElementById("user-input");
-  userInput.focus();
-});
-
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Tab") {
-    e.preventDefault();
-    const userInput = document.getElementById("user-input");
+  document.addEventListener("click", () => {
     userInput.focus();
-  }
+  });
+
+  addLine('Greetings, human! Type "help" to see the available commands.');
 });
